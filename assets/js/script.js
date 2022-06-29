@@ -6,19 +6,19 @@ document.getElementById("status").addEventListener("click", e => getStatus(e));
 document.getElementById("submit").addEventListener("click", e => postForm(e));
 
 function processOptions(form) {
-  
-let optArray = [];
+  let optArray = [];
 
-for (let entry of form.entries()) {
-  if (entry[0] === "options") {
-    optArray.push(entry[1]);
+  for (let e of form.entries()) {
+    if (e[0] === "options") {
+      optArray.push(e[1]);
+    }
   }
-}
-form.delete("options");
 
-form.append("options", optArray.join());
+  form.delete("options");
 
-return.form;
+  form.append("options", optArray.join());
+
+  return form;
 
 }
 
@@ -37,6 +37,7 @@ async function postForm(e) {
   if (response.ok) {
     displayErrors(data);
   } else {
+    displayException(data);
     throw new Error(data.error);
   }
 }
@@ -53,16 +54,33 @@ async function getStatus(e) {
   if (response.ok) {
     displayStatus(data);
   } else {
+    displayException(data);
     throw new Error(data.error);
   }
 }
 
+function displayException(data) {
+
+  let heading = `<div class="error-heading">An Exception Occured</div>`;
+
+  results = `<div>The API returned status code ${data.status_code}</div>`;
+  results += `<div>Error number: <strong>${data.error_no}</strong></div>`;
+  results += `<div>Error text: <strong>${data.error}</strong></div>`;
+
+  document.getElementById("resultsModalTitle").innerText = heading;
+  document.getElementById("results-content").innerHTML = results;
+
+  resultsModal.show();
+}
+
 function displayErrors(data) {
+
+  let results ="";
 
   let heading = `JSHint results for ${data.file}`;
 
   if (data.total_errors === 0) {
-    results = `<div class = "no_errors">No errors reported</div>`;
+    results = `<div class = "no_errors">No errors reported!</div>`;
   } else {
     results = `<div>tTotal Errors: <span class="error_count">${data.total_errors}</span></div>`;
     for (let error of data.error_list) {
